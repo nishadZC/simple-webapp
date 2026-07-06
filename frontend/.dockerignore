@@ -1,0 +1,30 @@
+# VCS
+.git
+.gitignore
+
+# Node dependencies and caches
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local env/secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Build/test artifacts
+coverage
+dist
+build
+
+# Docs and editor files
+README.md
+.vscode
+.idea
+
+# OS junk
+.DS_Store
+Thumbs.db

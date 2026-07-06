@@ -1,0 +1,143 @@
+# =============================================================================
+# MongoDB Deployment
+# -----------------------------------------------------------------------------
+# A Deployment manages one or more identical Pods.
+# It ensures the desired number of MongoDB Pods are always running.
+# If a Pod crashes, Kubernetes automatically creates a new one.
+# =============================================================================
+
+# Kubernetes API version for Deployments
+apiVersion: apps/v1
+
+# Resource type
+kind: Deployment
+
+# Metadata provides information about the Deployment
+metadata:
+
+  # Name of the Deployment
+  name: mongodb
+
+  # Namespace where the Deployment will be created
+  namespace: webapp
+
+  # Labels help identify and organize Kubernetes resources
+  labels:
+    app: mongodb
+
+# Desired state of the Deployment
+spec:
+
+  # Number of MongoDB Pods to run
+  replicas: 1
+
+  # Selector identifies which Pods belong to this Deployment.
+  # It must match the labels defined in the Pod template.
+  selector:
+    matchLabels:
+      app: mongodb
+
+  # Template used to create Pods
+  template:
+
+    # Metadata for each Pod
+    metadata:
+      labels:
+        app: mongodb
+
+    # Pod specification
+    spec:
+
+      # List of containers running inside the Pod
+      containers:
+
+        - name: mongodb
+
+          # Official MongoDB Docker image
+          image: mongo:4.4
+
+          # Port exposed by the MongoDB container
+          ports:
+            - containerPort: 27017
+
+          # Environment variables passed to MongoDB
+          env:
+
+            # Creates a database named "todoapp" during initialization
+            - name: MONGO_INITDB_DATABASE
+              value: "todoapp"
+
+          # Mount storage inside the container
+          volumeMounts:
+
+            # Name of the volume
+            - name: mongodb-storage
+
+              # Directory where MongoDB stores its data
+              mountPath: /data/db
+
+      # Volumes available to the Pod
+      volumes:
+
+        # Temporary storage for MongoDB data.
+        # NOTE:
+        # emptyDir is erased when the Pod is deleted.
+        # For production, use a PersistentVolume (PV) and
+        # PersistentVolumeClaim (PVC) instead.
+        - name: mongodb-storage
+          emptyDir: {}
+
+---
+# =============================================================================
+# MongoDB Service
+# -----------------------------------------------------------------------------
+# A Service provides a stable network endpoint for Pods.
+# Even if MongoDB Pods are recreated with new IP addresses,
+# other applications can always access MongoDB using:
+#
+#     mongodb-service:27017
+# =============================================================================
+
+# API version for Service
+apiVersion: v1
+
+# Resource type
+kind: Service
+
+# Metadata for the Service
+metadata:
+
+  # Name of the Service
+  name: mongodb-service
+
+  # Namespace where the Service exists
+  namespace: webapp
+
+  # Labels for organizing resources
+  labels:
+    app: mongodb
+
+# Service specification
+spec:
+
+  # Selects Pods with label app=mongodb
+  selector:
+    app: mongodb
+
+  # Port mapping
+  ports:
+
+    # Service port
+    - port: 27017
+
+      # Port on the MongoDB container
+      targetPort: 27017
+
+  # ClusterIP creates an internal Service.
+  # It is accessible only within the Kubernetes cluster.
+  # Backend Pods can connect using:
+  #
+  # mongodb-service:27017
+  #
+  # It is NOT accessible from outside the cluster.
+  type: ClusterIP

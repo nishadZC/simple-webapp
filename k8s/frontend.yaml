@@ -1,0 +1,169 @@
+# =============================================================================
+# Frontend Deployment
+# -----------------------------------------------------------------------------
+# A Deployment manages frontend Pods running the Nginx web server.
+# It ensures the specified number of replicas are always running.
+# If a Pod fails, Kubernetes automatically creates a replacement.
+# =============================================================================
+
+# Kubernetes API version for Deployment
+apiVersion: apps/v1
+
+# Resource type
+kind: Deployment
+
+# Metadata describing the Deployment
+metadata:
+
+  # Name of the Deployment
+  name: frontend
+
+  # Namespace where the Deployment will be created
+  namespace: webapp
+
+  # Labels help identify and organize resources
+  labels:
+    app: frontend
+
+# Desired state of the Deployment
+spec:
+
+  # Number of frontend Pods to run simultaneously.
+  # Having 2 replicas provides high availability.
+  replicas: 2
+
+  # Selector identifies which Pods belong to this Deployment.
+  # It must match the labels defined in the Pod template.
+  selector:
+    matchLabels:
+      app: frontend
+
+  # Template used to create frontend Pods
+  template:
+
+    # Labels assigned to each Pod
+    metadata:
+      labels:
+        app: frontend
+
+    # Pod specification
+    spec:
+
+      # List of containers running inside the Pod
+      containers:
+
+        - name: frontend
+
+          # Docker image for the frontend application
+          image: simple-frontend:latest
+
+          # Prevent Kubernetes from pulling the image from Docker Hub.
+          # It uses the image already available on the local machine
+          # (commonly used with Minikube or Docker Desktop).
+          imagePullPolicy: Never
+
+          # Container exposes HTTP on port 80
+          ports:
+            - containerPort: 80
+
+          # ------------------------------------------------------------
+          # Liveness Probe
+          # Checks whether the application is still running.
+          #
+          # If this probe fails repeatedly,
+          # Kubernetes automatically restarts the container.
+          # ------------------------------------------------------------
+          livenessProbe:
+            httpGet:
+
+              # URL used to check application health
+              path: /
+
+              # Container port
+              port: 80
+
+            # Wait 30 seconds before performing the first check
+            initialDelaySeconds: 30
+
+            # Perform the health check every 10 seconds
+            periodSeconds: 10
+
+          # ------------------------------------------------------------
+          # Readiness Probe
+          # Determines whether the Pod is ready to receive traffic.
+          #
+          # If this probe fails,
+          # the Pod is removed from the Service endpoints
+          # until it becomes healthy again.
+          # ------------------------------------------------------------
+          readinessProbe:
+            httpGet:
+
+              # URL checked for readiness
+              path: /
+
+              # Container port
+              port: 80
+
+            # Wait 5 seconds before the first readiness check
+            initialDelaySeconds: 5
+
+            # Check every 5 seconds
+            periodSeconds: 5
+
+---
+# =============================================================================
+# Frontend Service
+# -----------------------------------------------------------------------------
+# A Service provides a stable network endpoint for frontend Pods.
+# Since Pods can be recreated with different IP addresses,
+# clients communicate with the Service instead of directly with Pods.
+# =============================================================================
+
+# Kubernetes API version
+apiVersion: v1
+
+# Resource type
+kind: Service
+
+# Metadata describing the Service
+metadata:
+
+  # Name of the Service
+  name: frontend-service
+
+  # Namespace where the Service exists
+  namespace: webapp
+
+  # Labels for organization
+  labels:
+    app: frontend
+
+# Service specification
+spec:
+
+  # Selects Pods having the label app=frontend
+  selector:
+    app: frontend
+
+  # Port configuration
+  ports:
+
+    # Port exposed by the Service
+    - port: 80
+
+      # Port on the frontend container
+      targetPort: 80
+
+      # Communication protocol
+      protocol: TCP
+
+  # LoadBalancer exposes the Service externally.
+  #
+  # Cloud Providers:
+  # Creates an external load balancer with a public IP.
+  #
+  # Minikube:
+  # Use 'minikube service frontend-service'
+  # or 'minikube tunnel' to access it.
+  type: LoadBalancer

@@ -1,0 +1,47 @@
+services:
+  mongodb-service:
+    image: mongo:4.4
+    container_name: mongodb-service
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - webapp-net
+
+  backend-service:
+    build:
+      context: ./backend
+    image: simple-backend
+    container_name: backend
+    restart: unless-stopped
+    environment:
+      MONGODB_URI: mongodb://mongodb-service:27017/todoapp
+      PORT: 3000
+    depends_on:
+      - mongodb-service
+    ports:
+      - "3000:3000"
+    networks:
+      webapp-net:
+        aliases:
+          - backend-service
+
+  frontend:
+    build:
+      context: ./frontend
+    image: simple-frontend
+    container_name: frontend
+    restart: unless-stopped
+    depends_on:
+      - backend-service
+    ports:
+      - "8081:80"
+    networks:
+      - webapp-net
+
+volumes:
+  mongo-data:
+
+networks:
+  webapp-net:
+    driver: bridge

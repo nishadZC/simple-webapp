@@ -1,0 +1,91 @@
+# =============================================================================
+# Ingress Configuration
+# -----------------------------------------------------------------------------
+# An Ingress exposes HTTP/HTTPS services from outside the Kubernetes cluster.
+# Instead of exposing every Service individually, Ingress acts as a single
+# entry point and routes incoming requests to the appropriate Service based
+# on the hostname or URL path.
+#
+# In this application:
+#   http://webapp.local/      --> frontend-service
+#   http://webapp.local/api   --> backend-service
+# =============================================================================
+
+# API version for the Ingress resource
+apiVersion: networking.k8s.io/v1
+
+# Type of Kubernetes resource
+kind: Ingress
+
+# Metadata contains information about the Ingress
+metadata:
+
+  # Name of the Ingress
+  name: webapp-ingress
+
+  # Namespace where the Ingress is created
+  namespace: webapp
+
+  # Annotations provide additional configuration for the Ingress Controller.
+  annotations:
+
+    # Rewrites the incoming request path before forwarding it to the Service.
+    # Example:
+    #   Request: http://webapp.local/api
+    #   Forwarded to backend as: /
+    nginx.ingress.kubernetes.io/rewrite-target: /
+
+# Desired configuration of the Ingress
+spec:
+
+  # Rules define how requests should be routed.
+  rules:
+
+    # Hostname users will use to access the application.
+    # (For Minikube, map webapp.local to the Minikube IP in the hosts file.)
+    - host: webapp.local
+
+      http:
+
+        # List of URL paths and their corresponding Services
+        paths:
+
+          # -----------------------------------------------------------
+          # Route 1: Frontend
+          # Any request to "/" is forwarded to the frontend Service.
+          # Example:
+          #   http://webapp.local/
+          # -----------------------------------------------------------
+          - path: /
+            pathType: Prefix
+
+            backend:
+              service:
+
+                # Frontend Kubernetes Service
+                name: frontend-service
+
+                # Service port
+                port:
+                  number: 80
+
+          # -----------------------------------------------------------
+          # Route 2: Backend API
+          # Requests beginning with "/api" are forwarded
+          # to the backend Service.
+          #
+          # Example:
+          #   http://webapp.local/api/todos
+          # -----------------------------------------------------------
+          - path: /api
+            pathType: Prefix
+
+            backend:
+              service:
+
+                # Backend Kubernetes Service
+                name: backend-service
+
+                # Service port
+                port:
+                  number: 3000

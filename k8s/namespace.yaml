@@ -1,0 +1,33 @@
+# =============================================================================
+# Namespace Configuration
+# -----------------------------------------------------------------------------
+# A Namespace is a logical partition inside a Kubernetes cluster.
+# It helps organize and isolate resources such as Pods, Deployments,
+# Services, ConfigMaps, Secrets, etc.
+#
+# Benefits of using Namespaces:
+# - Separates different applications or environments (Dev, Test, Prod)
+# - Prevents resource name conflicts
+# - Enables resource quotas and access control
+# - Makes cluster management easier
+# =============================================================================
+
+# Specifies the Kubernetes API version used for this resource.
+apiVersion: v1
+
+# Specifies the type of Kubernetes object being created.
+kind: Namespace
+
+# Metadata contains information that identifies the resource.
+metadata:
+
+  # Unique name of the namespace.
+  # All resources created with namespace: webapp will belong here.
+  name: webapp
+
+  # Labels are optional key-value pairs used to identify and organize resources.
+  # They can be used for filtering, grouping, and selecting resources.
+  labels:
+
+    # Custom label indicating the namespace name.
+    name: webapp

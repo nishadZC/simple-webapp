@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Simple Todo App</title>
+
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      h1 {
+        color: #333;
+        text-align: center;
+      }
+
+      .todo-form {
+        margin-bottom: 30px;
+      }
+
+      input[type="text"] {
+        width: 70%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+      }
+
+      button {
+        padding: 10px 20px;
+        background: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #0056b3;
+      }
+
+      .todo-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .todo-item {
+        background: #f8f9fa;
+        margin: 10px 0;
+        padding: 15px;
+        border-radius: 5px;
+        border-left: 4px solid #007bff;
+      }
+
+      .status {
+        margin: 20px 0;
+        padding: 10px;
+        border-radius: 5px;
+      }
+
+      .success {
+        background: #d4edda;
+        color: #155724;
+        border: 1px solid #c3e6cb;
+      }
+
+      .error {
+        background: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <h1>Simple Todo Application</h1>
+
+      <div id="status"></div>
+
+      <div class="todo-form">
+        <input type="text" id="todoInput" placeholder="Enter a new todo item" />
+        <button onclick="addTodo()">Add Todo</button>
+      </div>
+
+      <ul id="todoList" class="todo-list"></ul>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,63 @@
+# OS/editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+
+# Node dependencies
+node_modules/
+**/node_modules/
+
+# Build and coverage
+build/
+dist/
+coverage/
+.nyc_output/
+
+# Runtime and temp files
+*.pid
+*.pid.lock
+tmp/
+temp/
+.cache/
+
+# Docker and compose local overrides
+.docker/
+*.tar
+*.tar.gz
+docker-data/
+**/.dockerignore.local
+compose.override.yml
+docker-compose.override.yml
+
+# Kubernetes generated/local files
+*.kubeconfig
+kubeconfig
+
+# Minikube and local cluster artifacts
+.minikube/
+
+# Test outputs
+junit.xml
+report.xml
+
+# Optional lockfiles generated in nested tools
+*.tsbuildinfo

@@ -1,0 +1,186 @@
+# =============================================================================
+# Backend Deployment
+# -----------------------------------------------------------------------------
+# A Deployment manages the backend application Pods.
+# It ensures the desired number of backend Pods are always running.
+# If a Pod crashes or is deleted, Kubernetes automatically creates a new one.
+# =============================================================================
+
+# Kubernetes API version for Deployment
+apiVersion: apps/v1
+
+# Type of Kubernetes resource
+kind: Deployment
+
+# Metadata describing the Deployment
+metadata:
+
+  # Name of the Deployment
+  name: backend
+
+  # Namespace where the Deployment will be created
+  namespace: webapp
+
+  # Labels used to identify the Deployment
+  labels:
+    app: backend
+
+# Desired state of the Deployment
+spec:
+
+  # Number of backend Pods to run.
+  # Multiple replicas improve availability and load balancing.
+  replicas: 2
+
+  # Selector identifies which Pods belong to this Deployment.
+  # It must match the labels defined in the Pod template.
+  selector:
+    matchLabels:
+      app: backend
+
+  # Template used to create backend Pods
+  template:
+
+    # Metadata for each Pod
+    metadata:
+      labels:
+        app: backend
+
+    # Pod specification
+    spec:
+
+      # List of containers running inside the Pod
+      containers:
+
+        - name: backend
+
+          # Docker image containing the backend application
+          image: simple-backend:latest
+
+          # Prevent Kubernetes from pulling the image from a registry.
+          # Useful when using locally built images with Minikube or Docker Desktop.
+          imagePullPolicy: Never
+
+          # Backend application listens on port 3000
+          ports:
+            - containerPort: 3000
+
+          # ------------------------------------------------------------
+          # Environment Variables
+          # These values are passed to the backend application.
+          # ------------------------------------------------------------
+          env:
+
+            # MongoDB connection string.
+            # The backend connects to MongoDB using the Service name,
+            # not the Pod IP, because Service provides a stable endpoint.
+            - name: MONGODB_URI
+              value: "mongodb://mongodb-service:27017/todoapp"
+
+            # Port on which the backend server will run
+            - name: PORT
+              value: "3000"
+
+          # ------------------------------------------------------------
+          # Liveness Probe
+          #
+          # Checks whether the backend application is still alive.
+          # If this probe fails repeatedly,
+          # Kubernetes automatically restarts the container.
+          # ------------------------------------------------------------
+          livenessProbe:
+            httpGet:
+
+              # Health check endpoint
+              path: /health
+
+              # Backend container port
+              port: 3000
+
+            # Wait 30 seconds before the first health check
+            initialDelaySeconds: 30
+
+            # Perform the check every 10 seconds
+            periodSeconds: 10
+
+          # ------------------------------------------------------------
+          # Readiness Probe
+          #
+          # Determines whether the backend is ready to receive requests.
+          # If this probe fails,
+          # the Pod is temporarily removed from the Service endpoints.
+          # ------------------------------------------------------------
+          readinessProbe:
+            httpGet:
+
+              # Health endpoint used for readiness
+              path: /health
+
+              # Backend container port
+              port: 3000
+
+            # Wait 5 seconds before the first readiness check
+            initialDelaySeconds: 5
+
+            # Check every 5 seconds
+            periodSeconds: 5
+
+---
+# =============================================================================
+# Backend Service
+# -----------------------------------------------------------------------------
+# A Service provides a stable network endpoint for backend Pods.
+# Even if Pods restart and receive new IP addresses,
+# clients can always communicate using:
+#
+#     backend-service:3000
+# =============================================================================
+
+# Kubernetes API version
+apiVersion: v1
+
+# Resource type
+kind: Service
+
+# Metadata describing the Service
+metadata:
+
+  # Name of the Service
+  name: backend-service
+
+  # Namespace where the Service exists
+  namespace: webapp
+
+  # Labels used for organization
+  labels:
+    app: backend
+
+# Service specification
+spec:
+
+  # Selects Pods with label app=backend
+  selector:
+    app: backend
+
+  # Port configuration
+  ports:
+
+    # Port exposed by the Service
+    - port: 3000
+
+      # Port on the backend container
+      targetPort: 3000
+
+      # Communication protocol
+      protocol: TCP
+
+  # ClusterIP creates an internal Service.
+  # It is accessible only from within the Kubernetes cluster.
+  #
+  # Frontend Pods can communicate with the backend using:
+  #
+  #     http://backend-service:3000
+  #
+  # External users cannot access this Service directly.
+  # External access should be provided through an Ingress.
+  type: ClusterIP
