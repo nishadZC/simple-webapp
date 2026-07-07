@@ -1,0 +1,142 @@
+name: CI-CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-scan-publish-deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      BACKEND_IMAGE_LOCAL: simple-backend
+      FRONTEND_IMAGE_LOCAL: simple-frontend
+      BACKEND_IMAGE_REMOTE: ${{ secrets.DOCKERHUB_USERNAME }}/simple-backend
+      FRONTEND_IMAGE_REMOTE: ${{ secrets.DOCKERHUB_USERNAME }}/simple-frontend
+      IMAGE_TAG: ${{ github.sha }}
+      SONAR_PROJECT_KEY: simple-webapp
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Trivy filesystem scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+
+      - name: Build backend image
+        run: |
+          docker build \
+            -t "$BACKEND_IMAGE_LOCAL:latest" \
+            -t "$BACKEND_IMAGE_LOCAL:$IMAGE_TAG" \
+            ./backend
+
+      - name: Build frontend image
+        run: |
+          docker build \
+            -t "$FRONTEND_IMAGE_LOCAL:latest" \
+            -t "$FRONTEND_IMAGE_LOCAL:$IMAGE_TAG" \
+            ./frontend
+
+      - name: Trivy backend image scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.BACKEND_IMAGE_LOCAL }}:${{ env.IMAGE_TAG }}
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+
+      - name: Trivy frontend image scan
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: image
+          image-ref: ${{ env.FRONTEND_IMAGE_LOCAL }}:${{ env.IMAGE_TAG }}
+          format: table
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+          exit-code: 1
+
+      - name: SonarQube scan
+        if: ${{ secrets.SONAR_HOST_URL != '' && secrets.SONAR_TOKEN != '' }}
+        uses: SonarSource/sonarqube-scan-action@v6.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >-
+            -Dsonar.projectKey=${{ env.SONAR_PROJECT_KEY }}
+            -Dsonar.sources=backend,frontend
+
+      - name: Log in to Docker Hub
+        if: ${{ github.event_name != 'pull_request' && secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Tag and push images to Docker Hub
+        if: ${{ github.event_name != 'pull_request' && secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' }}
+        run: |
+          docker tag "$BACKEND_IMAGE_LOCAL:latest" "$BACKEND_IMAGE_REMOTE:latest"
+          docker tag "$BACKEND_IMAGE_LOCAL:latest" "$BACKEND_IMAGE_REMOTE:$IMAGE_TAG"
+          docker tag "$FRONTEND_IMAGE_LOCAL:latest" "$FRONTEND_IMAGE_REMOTE:latest"
+          docker tag "$FRONTEND_IMAGE_LOCAL:latest" "$FRONTEND_IMAGE_REMOTE:$IMAGE_TAG"
+
+          docker push "$BACKEND_IMAGE_REMOTE:latest"
+          docker push "$BACKEND_IMAGE_REMOTE:$IMAGE_TAG"
+          docker push "$FRONTEND_IMAGE_REMOTE:latest"
+          docker push "$FRONTEND_IMAGE_REMOTE:$IMAGE_TAG"
+
+      - name: Install kubectl and Minikube
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
+
+          curl -LO https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          sudo install minikube-linux-amd64 /usr/local/bin/minikube
+
+      - name: Start Minikube
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          minikube start --driver=docker --cpus=2 --memory=4096
+          minikube addons enable ingress
+          kubectl config use-context minikube
+
+      - name: Load local images into Minikube
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          minikube image load "$BACKEND_IMAGE_LOCAL:latest"
+          minikube image load "$FRONTEND_IMAGE_LOCAL:latest"
+
+      - name: Deploy to Minikube
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          kubectl apply -f k8s/namespace.yaml
+          kubectl apply -f k8s/mongodb.yaml
+          kubectl wait --for=condition=available --timeout=300s deployment/mongodb -n webapp
+          kubectl apply -f k8s/backend.yaml
+          kubectl wait --for=condition=available --timeout=300s deployment/backend -n webapp
+          kubectl apply -f k8s/frontend.yaml
+          kubectl wait --for=condition=available --timeout=300s deployment/frontend -n webapp
+          kubectl apply -f k8s/ingress.yaml
+          kubectl get pods -n webapp
+          kubectl get deployments -n webapp
+          kubectl get services -n webapp
