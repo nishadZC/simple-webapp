@@ -11,7 +11,7 @@
 
 # Use the official Nginx image as the base image.
 # "latest" downloads the newest stable version.
-FROM nginx:latest
+FROM nginx:1.27.5-bookworm
 
 # ---------------------------------------------------------------------------
 # Copy frontend files into Nginx's default web directory.
