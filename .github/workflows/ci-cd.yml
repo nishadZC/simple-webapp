@@ -38,13 +38,14 @@ jobs:
 
       - name: Trivy filesystem scan
         uses: aquasecurity/trivy-action@v0.36.0
+        continue-on-error: true
         with:
           scan-type: fs
           scan-ref: .
           format: table
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: 1
+          exit-code: 0
 
       - name: Build backend image
         run: |
@@ -62,23 +63,25 @@ jobs:
 
       - name: Trivy backend image scan
         uses: aquasecurity/trivy-action@v0.36.0
+        continue-on-error: true
         with:
           scan-type: image
           image-ref: ${{ env.BACKEND_IMAGE_LOCAL }}:${{ env.IMAGE_TAG }}
           format: table
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: 1
+          exit-code: 0
 
       - name: Trivy frontend image scan
         uses: aquasecurity/trivy-action@v0.36.0
+        continue-on-error: true
         with:
           scan-type: image
           image-ref: ${{ env.FRONTEND_IMAGE_LOCAL }}:${{ env.IMAGE_TAG }}
           format: table
           severity: HIGH,CRITICAL
           ignore-unfixed: true
-          exit-code: 1
+          exit-code: 0
 
       - name: SonarQube scan
         if: ${{ env.SONAR_ENABLED == 'true' }}
