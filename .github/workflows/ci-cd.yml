@@ -27,6 +27,8 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+      TRIVY_SKIP_VERSION_CHECK: true
+      TRIVY_DISABLE_VEX_NOTICE: true
       SONAR_ENABLED: ${{ secrets.SONAR_HOST_URL != '' && secrets.SONAR_TOKEN != '' && 'true' || 'false' }}
       DOCKER_PUBLISH_ENABLED: ${{ github.event_name != 'pull_request' && secrets.DOCKERHUB_USERNAME != '' && secrets.DOCKERHUB_TOKEN != '' && 'true' || 'false' }}
 

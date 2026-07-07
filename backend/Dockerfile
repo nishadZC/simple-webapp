@@ -1,14 +1,22 @@
-FROM node:22-bookworm-slim
+FROM node:22-bookworm-slim AS build
 
 WORKDIR /app
-
-ENV NODE_ENV=production
 
 COPY package.json ./
 RUN npm install --omit=dev --no-audit --no-fund
 
 COPY server.js ./
 
+FROM gcr.io/distroless/nodejs22-debian12
+
+WORKDIR /app
+
+ENV NODE_ENV=production
+
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/server.js ./server.js
+
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["server.js"]
