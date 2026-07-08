@@ -55,7 +55,7 @@ spec:
         - name: frontend
 
           # Docker image for the frontend application
-          image: simple-frontend:latest
+          image: nishadzc/simple-frontend:latest
 
           # Prevent Kubernetes from pulling the image from Docker Hub.
           # It uses the image already available on the local machine

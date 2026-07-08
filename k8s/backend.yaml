@@ -55,7 +55,7 @@ spec:
         - name: backend
 
           # Docker image containing the backend application
-          image: simple-backend:latest
+          image: nishadzc/simple-backend:latest
 
           # Prevent Kubernetes from pulling the image from a registry.
           # Useful when using locally built images with Minikube or Docker Desktop.
