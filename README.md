@@ -259,7 +259,7 @@ kubectl describe ingress -n webapp
 
 7. Backend cannot connect to MongoDB
 
-## GitHub Actions CI/CD
+## GitHub Actions CI/CD pipeline
 
 The repository includes a workflow at [/.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) that:
 
