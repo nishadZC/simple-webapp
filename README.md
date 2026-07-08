@@ -1,6 +1,6 @@
 # Simple Web App (Docker)
 
-This project can run in two Docker modes (no Kubernetes):
+This project can run in two Docker modes (no Kubernete):
 
 - Docker Compose (recommended)
 - Manual docker build/run commands
