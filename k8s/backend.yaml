@@ -59,7 +59,7 @@ spec:
 
           # Prevent Kubernetes from pulling the image from a registry.
           # Useful when using locally built images with Minikube or Docker Desktop.
-          imagePullPolicy: Never
+          imagePullPolicy: Always
 
           # Backend application listens on port 3000
           ports:

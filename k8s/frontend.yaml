@@ -60,7 +60,7 @@ spec:
           # Prevent Kubernetes from pulling the image from Docker Hub.
           # It uses the image already available on the local machine
           # (commonly used with Minikube or Docker Desktop).
-          imagePullPolicy: Never
+          imagePullPolicy: Always
 
           # Container exposes HTTP on port 80
           ports:

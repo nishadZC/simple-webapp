@@ -207,7 +207,7 @@ kubectl apply -f k8s/namespace.yaml
 
 2. Deployment stuck in `ImagePullBackOff` or `ErrImagePull`
 
-- If manifests use `imagePullPolicy: Never`, images must exist in Minikube's Docker daemon.
+- If manifests use `imagePullPolicy: Always`, images exist in Minikube's Docker daemon then also it will pull.
 - Build images in Minikube Docker environment before applying manifests:
 
 ```bash
