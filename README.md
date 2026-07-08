@@ -155,9 +155,9 @@ This section follows the exact command flow for deploying this app to Minikube.
 - kubectl installed
 - Enough resources for local cluster (recommended at least 2 CPU and 4 GB RAM)
 
-Optional but useful:
+Required for Ingress access:
 
-- Enable ingress addon when testing Ingress locally
+- Enable the ingress addon before applying [k8s/ingress.yaml](k8s/ingress.yaml)
 
 ```bash
 minikube addons enable ingress
@@ -169,6 +169,7 @@ Run from project root:
 
 ```bash
 minikube start --driver=docker
+minikube addons enable ingress
 kubectl apply -f k8s/namespace.yaml
 kubectl apply -f k8s/mongodb.yaml
 kubectl wait --for=condition=available --timeout=300s deployment/mongodb -n webapp
@@ -263,7 +264,6 @@ kubectl describe ingress -n webapp
 The repository includes a workflow at [/.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) that:
 
 - Builds the backend and frontend Docker images
-- Runs Trivy filesystem and image scans
 - Runs a SonarQube scan when the SonarQube secrets are configured
 - Pushes images to Docker Hub on pushes to `main`
 - Starts Minikube and applies the Kubernetes manifests
