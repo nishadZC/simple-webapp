@@ -7,7 +7,7 @@ This project can run in two Docker modes (no Kubernete):
 
 It can also run on Kubernetes using Minikube (see "Option C").
 
-## Option A) Docker Compose (Recommended)
+## Option A) Docker Compose (Recommended 1)
 
 Run from project root:
 
