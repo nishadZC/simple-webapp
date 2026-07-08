@@ -264,7 +264,6 @@ kubectl describe ingress -n webapp
 The repository includes a workflow at [/.github/workflows/ci-cd.yml](.github/workflows/ci-cd.yml) that:
 
 - Builds the backend and frontend Docker images
-- Runs a SonarQube scan when the SonarQube secrets are configured
 - Pushes images to Docker Hub on pushes to `main`
 - Starts Minikube and applies the Kubernetes manifests
 
@@ -272,8 +271,6 @@ Required GitHub secrets:
 
 - `DOCKERHUB_USERNAME`
 - `DOCKERHUB_TOKEN`
-- `SONAR_HOST_URL`
-- `SONAR_TOKEN`
 
 The workflow publishes images as `simple-backend` and `simple-frontend` locally, and as `DOCKERHUB_USERNAME/simple-backend` and `DOCKERHUB_USERNAME/simple-frontend` in Docker Hub.
 
