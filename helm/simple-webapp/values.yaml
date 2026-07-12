@@ -1,0 +1,52 @@
+namespace:
+  create: true
+  name: webapp
+
+frontend:
+  replicaCount: 1
+  image: nishadzc/simple-frontend:latest
+  imagePullPolicy: Always
+  containerPort: 80
+  service:
+    type: LoadBalancer
+    port: 80
+    targetPort: 80
+
+backend:
+  replicaCount: 2
+  image: nishadzc/simple-backend:latest
+  imagePullPolicy: Always
+  containerPort: 3000
+  env:
+    mongodbUri: mongodb://mongodb-service:27017/todoapp
+    port: "3000"
+  service:
+    type: ClusterIP
+    port: 3000
+    targetPort: 3000
+
+mongodb:
+  replicaCount: 1
+  image: mongo:4.4
+  port: 27017
+  database: todoapp
+  persistence:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 5Gi
+    storageClassName: ""
+
+ingress:
+  enabled: true
+  rewriteTarget: /
+
+storageClass:
+  create: false
+  name: gp3-storage
+  provisioner: ebs.csi.aws.com
+  parameters:
+    type: gp3
+    fsType: ext4
+  volumeBindingMode: WaitForFirstConsumer
+  reclaimPolicy: Delete

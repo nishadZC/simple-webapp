@@ -41,11 +41,10 @@ spec:
   # Rules define how requests should be routed.
   rules:
 
-    # Hostname users will use to access the application.
-    # (For Minikube, map webapp.local to the Minikube IP in the hosts file.)
-    - host: webapp.local
-
-      http:
+    # Match requests regardless of the incoming host header.
+    # This allows the same ingress to work with the public LoadBalancer DNS
+    # name as well as a custom domain such as webapp.local.
+    - http:
 
         # List of URL paths and their corresponding Services
         paths:

@@ -77,15 +77,19 @@ spec:
               mountPath: /data/db
 
       # Volumes available to the Pod
-      volumes:
+      # volumes:
 
         # Temporary storage for MongoDB data.
         # NOTE:
         # emptyDir is erased when the Pod is deleted.
         # For production, use a PersistentVolume (PV) and
         # PersistentVolumeClaim (PVC) instead.
-        - name: mongodb-storage
-          emptyDir: {}
+        # - name: mongodb-storage
+          # emptyDir: {}
+      volumes:
+      - name: mongodb-storage
+        persistentVolumeClaim:
+          claimName: mongodb-pvc
 
 ---
 # =============================================================================

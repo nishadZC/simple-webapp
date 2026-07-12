@@ -52,6 +52,10 @@ docker-compose.override.yml
 *.kubeconfig
 kubeconfig
 
+# Helm local artifacts
+helm/**/*.tgz
+**/charts/*.tgz
+
 # Minikube and local cluster artifacts
 .minikube/
 

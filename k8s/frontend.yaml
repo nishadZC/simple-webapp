@@ -30,7 +30,7 @@ spec:
 
   # Number of frontend Pods to run simultaneously.
   # Having 2 replicas provides high availability.
-  replicas: 2
+  replicas: 1
 
   # Selector identifies which Pods belong to this Deployment.
   # It must match the labels defined in the Pod template.
