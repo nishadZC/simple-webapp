@@ -1,6 +1,6 @@
 namespace:
-  create: true
-  name: webapp
+  create: true # set false if the namespace already exists outside Helm
+  name: webapp-heml
 
 frontend:
   replicaCount: 1
@@ -34,7 +34,7 @@ mongodb:
     enabled: true
     accessModes:
       - ReadWriteOnce
-    size: 5Gi
+    size: 2Gi
     storageClassName: ""
 
 ingress:

@@ -26,17 +26,11 @@ metadata:
   # Namespace where the Ingress is created
   namespace: webapp
 
-  # Annotations provide additional configuration for the Ingress Controller.
-  annotations:
-
-    # Rewrites the incoming request path before forwarding it to the Service.
-    # Example:
-    #   Request: http://webapp.local/api
-    #   Forwarded to backend as: /
-    nginx.ingress.kubernetes.io/rewrite-target: /
-
 # Desired configuration of the Ingress
 spec:
+
+  # Use the NGINX ingress controller that is already running in the cluster.
+  ingressClassName: nginx
 
   # Rules define how requests should be routed.
   rules:

@@ -10,10 +10,16 @@ A Helm chart is also included in the [helm/simple-webapp](helm/simple-webapp) di
 
 ## Helm Deployment
 
-From the project root, install or upgrade the chart with:
+If the `webapp` namespace does not already exist, install or upgrade the chart with:
 
 ```bash
-helm upgrade --install simple-webapp helm/simple-webapp -n webapp --create-namespace
+helm upgrade --install simple-webapp ./helm/simple-webapp -n webapp --create-namespace
+```
+
+If the `webapp` namespace already exists, tell Helm not to manage the namespace resource:
+
+```bash
+helm upgrade --install simple-webapp ./helm/simple-webapp -n webapp --set namespace.create=false
 ```
 
 Useful Helm commands:

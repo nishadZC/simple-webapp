@@ -4,9 +4,8 @@ kind: Ingress
 metadata:
   name: webapp-ingress
   namespace: {{ .Values.namespace.name }}
-  annotations:
-    nginx.ingress.kubernetes.io/rewrite-target: {{ .Values.ingress.rewriteTarget }}
 spec:
+  ingressClassName: nginx
   rules:
     - http:
         paths:

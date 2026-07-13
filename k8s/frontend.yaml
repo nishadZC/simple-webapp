@@ -158,12 +158,7 @@ spec:
       # Communication protocol
       protocol: TCP
 
-  # LoadBalancer exposes the Service externally.
-  #
-  # Cloud Providers:
-  # Creates an external load balancer with a public IP.
-  #
-  # Minikube:
-  # Use 'minikube service frontend-service'
-  # or 'minikube tunnel' to access it.
-  type: LoadBalancer
+  # The frontend is intended to be accessed through the Ingress controller,
+  # not through a separate public LoadBalancer. This keeps the app behind a
+  # single entry point for both / and /api.
+  type: ClusterIP
