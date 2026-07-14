@@ -4,5 +4,6 @@ kind: Namespace
 metadata:
   name: {{ .Values.namespace.name }}
   labels:
-    name: {{ .Values.namespace.name }}
+{{ include "simple-webapp.labels" . | nindent 4 }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
 {{- end }}

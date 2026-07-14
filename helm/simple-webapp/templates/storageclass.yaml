@@ -3,6 +3,8 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: {{ .Values.storageClass.name }}
+  labels:
+{{ include "simple-webapp.labels" . | nindent 4 }}
 provisioner: {{ .Values.storageClass.provisioner }}
 parameters:
   type: {{ .Values.storageClass.parameters.type }}

@@ -258,6 +258,14 @@ docker build -t simple-backend ./backend
 docker build -t simple-frontend ./frontend
 ```
 
+## Helm
+
+From the Helm chart directory, run:
+
+```bash
+helm install simple-webapp ./simple-webapp
+```
+
 3. MongoDB pod crash on older CPUs
 
 - This repo is tested with `mongo:4.4` for compatibility on non-AVX hosts.
@@ -346,7 +354,6 @@ Application Components:
 - Container Orchestration: Kubernetes
 - Cloud Provider: AWS EKS
 
-
 ## Architecture
 
 ```
@@ -385,7 +392,6 @@ Install the following tools:
 - eksctl
 - Docker
 
-
 Verify installation:
 
 ```bash
@@ -423,6 +429,26 @@ Verify AWS authentication:
 aws sts get-caller-identity
 ```
 
+# Show all contexts
+
+kubectl config get-contexts
+
+# Show current context
+
+kubectl config current-context
+
+# Switch to EKS
+
+kubectl config use-context <eks-context></eks>
+
+# Switch back to Minikube
+
+kubectl config use-context minikube
+
+# Add EKS context if missing
+
+aws eks update-kubeconfig --region ap-south-1 --name <cluster-name></cluster>
+
 ---
 
 # 3. Create EKS Cluster
@@ -434,10 +460,10 @@ eksctl create cluster \
   --name webapp-cluster \
   --region ap-south-1 \
   --nodegroup-name workers \
-  --node-type t3.medium \
-  --nodes 2 \
-  --nodes-min 2 \
-  --nodes-max 5 \
+  --node-type t3.micro \
+  --nodes 8 \
+  --nodes-min 8 \
+  --nodes-max 8 \
   --managed \
   --with-oidc
 ```
@@ -594,11 +620,6 @@ Deploy application resources:
 
 ```bash
 kubectl apply -f namespace.yaml
-
-eksctl create addon \
-  --cluster webapp-cluster \
-  --region ap-south-1 \
-  --name aws-ebs-csi-driver
 kubectl get pods -n kube-system | grep ebs
 kubectl get storageclass
 kubectl apply -f mongodb-pvc.yaml
@@ -616,20 +637,17 @@ kubectl apply -f frontend.yaml
 
 # 6. Verify Kubernetes Deployment
 
-
 ## Check Cluster
 
 ```bash
 kubectl cluster-info
 ```
 
-
 ## Check Worker Nodes
 
 ```bash
 kubectl get nodes -o wide
 ```
-
 
 ## Check Pods
 
@@ -670,6 +688,7 @@ kubectl get svc frontend-service \
 -n webapp \
 -o jsonpath='{.status.loadBalancer.ingress[0].hostname}{"\n"}'
 ```
+
 ---
 
 # 10. MongoDB Configuration
@@ -688,7 +707,6 @@ Backend connection string:
 mongodb://mongodb-service:27017/todoapp
 ```
 
-
 Do not use:
 
 ```
@@ -697,11 +715,9 @@ mongodb://localhost:27017
 
 because localhost points to the backend container itself.
 
-
 ---
 
 # 11. MongoDB Troubleshooting
-
 
 Check MongoDB pod:
 
@@ -709,13 +725,11 @@ Check MongoDB pod:
 kubectl get pods -n webapp
 ```
 
-
 Check MongoDB logs:
 
 ```bash
 kubectl logs -n webapp -l app=mongodb
 ```
-
 
 Describe MongoDB pod:
 
@@ -723,13 +737,11 @@ Describe MongoDB pod:
 kubectl describe pod -n webapp -l app=mongodb
 ```
 
-
 Check MongoDB service:
 
 ```bash
 kubectl describe svc mongodb-service -n webapp
 ```
-
 
 Check endpoints:
 
@@ -747,13 +759,11 @@ mongodb-service   <mongodb-pod-ip>:27017
 
 # 12. Backend Troubleshooting
 
-
 Check backend logs:
 
 ```bash
 kubectl logs <backend-pod-name> -n webapp
 ```
-
 
 Example error:
 
@@ -762,9 +772,7 @@ MongooseServerSelectionError:
 connect ECONNREFUSED mongodb-service:27017
 ```
 
-
 Solution:
-
 
 Restart backend after MongoDB becomes available:
 
@@ -772,13 +780,11 @@ Restart backend after MongoDB becomes available:
 kubectl rollout restart deployment backend -n webapp
 ```
 
-
 Check logs again:
 
 ```bash
 kubectl logs -f deployment/backend -n webapp
 ```
-
 
 Expected:
 
@@ -794,17 +800,16 @@ MongoDB connected successfully
 ## Problem
 
 MongoDB pod stuck in Pending state:
+
 ```
 STATUS: Pending
 ```
-
 
 Check pod:
 
 ```bash
 kubectl describe pod <mongodb-pod-name> -n webapp
 ```
-
 
 Error:
 
@@ -813,18 +818,15 @@ Error:
 Too many pods
 ```
 
-
 ## Reason
 
 Worker nodes reached maximum pod capacity.
-
 
 Check node capacity:
 
 ```bash
 kubectl describe node
 ```
-
 
 Example:
 
@@ -833,9 +835,7 @@ Allocatable:
 pods: 4
 ```
 
-
 ## Solution 1: Increase Worker Nodes
-
 
 ```bash
 eksctl scale nodegroup \
@@ -844,9 +844,7 @@ eksctl scale nodegroup \
 --nodes 3
 ```
 
-
 ## Solution 2: Increase Instance Size
-
 
 Use:
 
@@ -854,9 +852,7 @@ Use:
 t3.medium
 ```
 
-
 instead of smaller instance types.
-
 
 ## Solution 3: Reduce Replicas
 
@@ -868,7 +864,6 @@ kubectl scale deployment frontend --replicas=1 -n webapp
 
 # 14. Deployment Rollout Troubleshooting
 
-
 Check rollout:
 
 ```bash
@@ -877,16 +872,13 @@ kubectl rollout status deployment/mongodb \
 --timeout=300s
 ```
 
-
 If pipeline fails:
 
 ```
 deployment "mongodb" exceeded its progress deadline
 ```
 
-
 Check:
-
 
 ```bash
 kubectl get pods -n webapp
@@ -896,11 +888,9 @@ kubectl describe pods -n webapp
 kubectl logs -n webapp -l app=mongodb
 ```
 
-
 ---
 
 # 15. CI/CD Pipeline Deployment Verification
-
 
 Pipeline uses:
 
@@ -912,7 +902,6 @@ kubectl rollout status deployment/backend -n webapp --timeout=300s
 kubectl rollout status deployment/frontend -n webapp --timeout=300s
 ```
 
-
 If deployment fails, check Kubernetes events:
 
 ```bash
@@ -923,13 +912,11 @@ kubectl get events -n webapp --sort-by=.metadata.creationTimestamp
 
 # 16. Useful Kubernetes Commands
 
-
 ## All Pods
 
 ```bash
 kubectl get pods -A
 ```
-
 
 ## Services
 
@@ -937,13 +924,11 @@ kubectl get pods -A
 kubectl get svc -n webapp
 ```
 
-
 ## Ingress
 
 ```bash
 kubectl get ingress -n webapp
 ```
-
 
 ## Endpoints
 
@@ -951,20 +936,17 @@ kubectl get ingress -n webapp
 kubectl get endpoints -n webapp
 ```
 
-
 ## Pod Details
 
 ```bash
 kubectl describe pod <pod-name> -n webapp
 ```
 
-
 ## Logs
 
 ```bash
 kubectl logs <pod-name> -n webapp
 ```
-
 
 ## Restart Deployment
 
@@ -976,16 +958,7 @@ kubectl rollout restart deployment <deployment-name> -n webapp
 
 # 17. Delete Worker Node Group
 
-
 Delete nodegroup:
-
-```bash
-eksctl delete nodegroup \
---cluster webapp-cluster \
---region ap-south-1 \
---name workers
-```
-
 
 Check CloudFormation events:
 
@@ -1013,14 +986,14 @@ Application access:
 ```
 http://<AWS-LOADBALANCER-DNS>
 ```
+
 ---
 
 # 18. Delete EKS Cluster and Cleanup AWS Resources
 
 This section explains how to completely remove the EKS deployment and all related AWS resources.
 
-⚠️ **Warning:**  
-The following steps permanently delete:
+⚠️ **Warning:**The following steps permanently delete:
 
 - Kubernetes applications
 - Worker nodes
@@ -1048,7 +1021,6 @@ This removes:
 - Pods
 - ConfigMaps
 - Secrets inside the namespace
-
 
 Verify:
 
@@ -1143,14 +1115,12 @@ Cluster deletion may take several minutes.
 
 # 18.6 Verify Cluster Deletion
 
-
 Check EKS clusters:
 
 ```bash
 aws eks list-clusters \
 --region ap-south-1
 ```
-
 
 Check eksctl:
 
@@ -1177,13 +1147,11 @@ Check contexts:
 kubectl config get-contexts
 ```
 
-
 Delete cluster context:
 
 ```bash
 kubectl config delete-context <context-name>
 ```
-
 
 Delete cluster configuration:
 
@@ -1242,7 +1210,6 @@ Look for:
 eksctl-webapp-cluster-*
 ```
 
-
 If any stack remains:
 
 ```bash
@@ -1254,7 +1221,6 @@ aws cloudformation delete-stack \
 ---
 
 # 18.11 Final Verification
-
 
 Check Kubernetes:
 
@@ -1270,7 +1236,6 @@ Unable to connect to the server
 
 because the EKS cluster no longer exists.
 
-
 Check AWS EKS:
 
 ```bash
@@ -1278,51 +1243,8 @@ aws eks list-clusters \
 --region ap-south-1
 ```
 
-Expected:
+Check Available API
 
-```json
-{
-    "clusters": []
-}
+```Shell
+kubectl api-resources
 ```
-
----
-
-# Cleanup Complete
-
-After successful deletion:
-
-```
-EKS Cluster        Deleted
-Worker Nodes       Deleted
-Frontend Service   Deleted
-Backend Service    Deleted
-MongoDB            Deleted
-LoadBalancer       Deleted
-CloudFormation     Deleted
-```
-
-All AWS resources created for this EKS deployment have been removed.
-
-
-
-
-
-
-
-
-
-
-
- 1555  kubectl wait --for=condition=available --timeout=300s deployment/mongodb -n webapp
- 1556  kubectl apply -f k8s/backend.yaml
- 1557  kubectl wait --for=condition=available --timeout=300s deployment/backend -n webapp
- 1558  kubectl apply -f k8s/frontend.yaml
- 1559  kubectl wait --for=condition=available --timeout=300s deployment/frontend -n webapp
-
- eksctl utils associate-iam-oidc-provider   --cluster webapp-cluster   --region ap-south-1   --approve
- 
-eksctl create iamserviceaccount   --name ebs-csi-controller-sa   --namespace kube-system   --cluster webapp-cluster   --region ap-south-1   --role-name AmazonEKS_EBS_CSI_DriverRole   --attach-policy-arn arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy   --approve
-
-
- kubectl get serviceaccount -n kube-system

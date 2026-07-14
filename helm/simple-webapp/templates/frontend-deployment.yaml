@@ -1,19 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: frontend
+  name: {{ include "simple-webapp.fullname" . }}-frontend
   namespace: {{ .Values.namespace.name }}
   labels:
-    app: frontend
+{{ include "simple-webapp.labels" . | nindent 4 }}
+    component: frontend
 spec:
   replicas: {{ .Values.frontend.replicaCount }}
   selector:
     matchLabels:
-      app: frontend
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      component: frontend
   template:
     metadata:
       labels:
-        app: frontend
+{{ include "simple-webapp.labels" . | nindent 8 }}
+        component: frontend
     spec:
       containers:
         - name: frontend

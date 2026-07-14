@@ -1,6 +1,8 @@
 namespace:
   create: true # set false if the namespace already exists outside Helm
-  name: webapp-heml
+  name: webapp
+  fullnameOverride: ""
+  nameOverride: ""
 
 frontend:
   replicaCount: 1

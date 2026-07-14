@@ -2,8 +2,11 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: webapp-ingress
+  name: {{ include "simple-webapp.fullname" . }}-ingress
   namespace: {{ .Values.namespace.name }}
+  labels:
+{{ include "simple-webapp.labels" . | nindent 4 }}
+    component: ingress
 spec:
   ingressClassName: nginx
   rules:
@@ -13,14 +16,14 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: frontend-service
+                name: {{ include "simple-webapp.fullname" . }}-frontend
                 port:
-                  number: 80
+                  number: {{ .Values.frontend.service.port }}
           - path: /api
             pathType: Prefix
             backend:
               service:
-                name: backend-service
+                name: {{ include "simple-webapp.fullname" . }}-backend
                 port:
-                  number: 3000
+                  number: {{ .Values.backend.service.port }}
 {{- end }}

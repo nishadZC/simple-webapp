@@ -1,19 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongodb
+  name: {{ include "simple-webapp.fullname" . }}-mongodb
   namespace: {{ .Values.namespace.name }}
   labels:
-    app: mongodb
+{{ include "simple-webapp.labels" . | nindent 4 }}
+    component: mongodb
 spec:
   replicas: {{ .Values.mongodb.replicaCount }}
   selector:
     matchLabels:
-      app: mongodb
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      component: mongodb
   template:
     metadata:
       labels:
-        app: mongodb
+{{ include "simple-webapp.labels" . | nindent 8 }}
+        component: mongodb
     spec:
       containers:
         - name: mongodb
@@ -29,4 +32,4 @@ spec:
       volumes:
         - name: mongodb-storage
           persistentVolumeClaim:
-            claimName: mongodb-pvc
+            claimName: {{ include "simple-webapp.fullname" . }}-mongodb-pvc
