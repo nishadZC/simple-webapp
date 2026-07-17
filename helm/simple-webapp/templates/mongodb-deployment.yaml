@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "simple-webapp.fullname" . }}-mongodb
+  name: mongodb
   namespace: {{ .Values.namespace.name }}
   labels:
 {{ include "simple-webapp.labels" . | nindent 4 }}
@@ -32,4 +32,4 @@ spec:
       volumes:
         - name: mongodb-storage
           persistentVolumeClaim:
-            claimName: {{ include "simple-webapp.fullname" . }}-mongodb-pvc
+            claimName: mongodb-pvc

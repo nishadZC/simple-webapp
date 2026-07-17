@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: {{ include "simple-webapp.fullname" . }}-mongodb-pvc
+  name: mongodb-pvc
   namespace: {{ .Values.namespace.name }}
   labels:
 {{ include "simple-webapp.labels" . | nindent 4 }}

@@ -1,6 +1,6 @@
 apiVersion: v2  #format version of the Helm chart, not the Kubernetes API version
-name: todo-app
+name: simple-webapp
 description: Helm chart for the todo application
 type: application
-version: 0.1.0   #version of the Helm chart itself
+version: 0.1.1   #version of the Helm chart itself
 appVersion: "1.0.0"
