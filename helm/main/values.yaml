@@ -1,0 +1,13 @@
+namespace:
+  create: true
+  name: webapp
+
+ingress:
+  enabled: true
+
+storageClass:
+  create: true
+  name: minikube-storage
+  provisioner: k8s.io/minikube-hostpath
+  volumeBindingMode: Immediate
+  reclaimPolicy: Delete

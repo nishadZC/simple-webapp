@@ -1,0 +1,22 @@
+replicaCount: 1
+
+image:
+  repository: mongo
+  tag: "4.4"
+  imagePullPolicy: Always
+
+
+port: 27017
+
+database: todoapp
+
+
+persistence:
+  enabled: true
+
+  accessModes:
+    - ReadWriteOnce
+
+  size: 2Gi
+
+  storageClassName: minikube-storage

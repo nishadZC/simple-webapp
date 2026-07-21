@@ -1,0 +1,17 @@
+replicaCount: 2
+
+image:
+  repository: nishadzc/simple-backend
+  tag: latest
+  pullPolicy: Always
+
+containerPort: 3000
+
+env:
+  mongodbUri: mongodb://mongodb-service:27017/todoapp
+  port: "3000"
+
+service:
+  type: ClusterIP
+  port: 3000
+  targetPort: 3000

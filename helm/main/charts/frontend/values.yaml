@@ -1,0 +1,14 @@
+replicaCount: 1
+
+image:
+  repository: nishadzc/simple-frontend
+  tag: latest
+  imagePullPolicy: Always
+
+containerPort: 80
+
+
+service:
+  type: LoadBalancer
+  port: 80
+  targetPort: 80
