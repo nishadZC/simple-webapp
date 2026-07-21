@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  security-events: write
 
 jobs:
   build-scan-publish-deploy:
@@ -26,6 +27,9 @@ jobs:
       IMAGE_TAG: ${{ github.sha }}
 
     steps:
+      ####################################################
+      # Checkout Repository
+      ####################################################
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -48,7 +52,41 @@ jobs:
             ./frontend
 
       ####################################################
-      # Push Images to Docker Hub
+      # Install Trivy
+      ####################################################
+
+      - name: Install Trivy
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          scan-type: fs
+          scan-ref: .
+
+      ####################################################
+      # Scan Docker Images
+      ####################################################
+
+      - name: Scan Backend Image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.BACKEND_IMAGE_LOCAL }}:${{ env.IMAGE_TAG }}
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+
+      - name: Scan Frontend Image
+        uses: aquasecurity/trivy-action@0.28.0
+        with:
+          image-ref: ${{ env.FRONTEND_IMAGE_LOCAL }}:${{ env.IMAGE_TAG }}
+          format: table
+          exit-code: 1
+          ignore-unfixed: true
+          vuln-type: os,library
+          severity: HIGH,CRITICAL
+
+      ####################################################
+      # Login to Docker Hub
       ####################################################
 
       - name: Login to Docker Hub
@@ -56,6 +94,10 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      ####################################################
+      # Tag Images
+      ####################################################
 
       - name: Tag Images
         run: |
@@ -65,10 +107,16 @@ jobs:
           docker tag $FRONTEND_IMAGE_LOCAL:latest $FRONTEND_IMAGE_REMOTE:latest
           docker tag $FRONTEND_IMAGE_LOCAL:$IMAGE_TAG $FRONTEND_IMAGE_REMOTE:$IMAGE_TAG
 
-      - name: Push Images
+      ####################################################
+      # Push Images
+      ####################################################
+
+      - name: Push Backend Image
         run: |
           docker push $BACKEND_IMAGE_REMOTE:latest
           docker push $BACKEND_IMAGE_REMOTE:$IMAGE_TAG
 
+      - name: Push Frontend Image
+        run: |
           docker push $FRONTEND_IMAGE_REMOTE:latest
           docker push $FRONTEND_IMAGE_REMOTE:$IMAGE_TAG
