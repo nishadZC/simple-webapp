@@ -11,7 +11,10 @@
 
 # Use the official Nginx image as the base image.
 # "latest" downloads the newest stable version.
-FROM nginx:1.29-bookworm
+FROM nginx:1.29-alpine
+
+RUN apk update && \
+    apk upgrade --no-cache
 # ---------------------------------------------------------------------------
 # Copy frontend files into Nginx's default web directory.
 #
