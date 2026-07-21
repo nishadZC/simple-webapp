@@ -1247,4 +1247,9 @@ Check Available API
 
 ```Shell
 kubectl api-resources
+
+
+
+monitoring grafana password 
+Zg0pmH5mMtZkLlD7THGneEOZhJ4eIzkOvRx18p3K
 ```
