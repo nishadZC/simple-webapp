@@ -2,12 +2,27 @@ namespace:
   create: true
   name: webapp
 
+
 ingress:
   enabled: true
 
+
 storageClass:
   create: true
-  name: minikube-storage
-  provisioner: k8s.io/minikube-hostpath
-  volumeBindingMode: Immediate
+  name: azure-disk-sc
+  provisioner: disk.csi.azure.com
+
+  parameters:
+    skuName: Standard_LRS
+
+  volumeBindingMode: WaitForFirstConsumer
   reclaimPolicy: Delete
+
+
+mongodb:
+  persistence:
+    enabled: true
+    accessModes:
+      - ReadWriteOnce
+    size: 2Gi
+    storageClassName: azure-disk-sc

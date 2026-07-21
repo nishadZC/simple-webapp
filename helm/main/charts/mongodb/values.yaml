@@ -19,4 +19,4 @@ persistence:
 
   size: 2Gi
 
-  storageClassName: minikube-storage
+  storageClassName: azure-disk-sc #minikube-storage

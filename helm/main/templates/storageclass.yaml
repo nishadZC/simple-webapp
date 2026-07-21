@@ -1,16 +1,20 @@
 {{- if .Values.storageClass.create }}
+
 apiVersion: storage.k8s.io/v1
 kind: StorageClass
+
 metadata:
   name: {{ .Values.storageClass.name }}
-  labels:
-{{ include "simple-webapp.labels" . | nindent 4 }}
 
 provisioner: {{ .Values.storageClass.provisioner }}
 
+parameters:
+{{- toYaml .Values.storageClass.parameters | nindent 2 }}
+
 volumeBindingMode: {{ .Values.storageClass.volumeBindingMode }}
+
+reclaimPolicy: {{ .Values.storageClass.reclaimPolicy }}
 
 allowVolumeExpansion: true
 
-reclaimPolicy: {{ .Values.storageClass.reclaimPolicy }}
 {{- end }}
