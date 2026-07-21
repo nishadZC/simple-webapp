@@ -7,7 +7,8 @@ RUN npm install --omit=dev --no-audit --no-fund
 
 COPY server.js ./
 
-FROM gcr.io/distroless/nodejs22-debian12
+# Updated runtime image
+FROM gcr.io/distroless/nodejs22-debian12:latest
 
 WORKDIR /app
 
